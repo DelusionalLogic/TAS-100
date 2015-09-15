@@ -83,8 +83,9 @@ main.o: main.c
 #blink.flash: FFILE=blink.o
 #blink.flash: blink.o flash
 
-%.flash: %.o
-	avrdude -D -p $(MCU_TARGET) -P $(PORT) -c arduino -b 115200 -V -F -U flash:w:$(@:.flash=.hex):i
+%.flash: %.hex %.elf
+	avrdude -D -p $(MCU_TARGET) -P $(PORT) -c arduino -b 115200 -V -F -U flash:w:$(@:.flash=.hex)
+	avr-size --mcu=$(MCU_TARGET) -C $(@:.flash=.elf)
 
 clean:
 	rm -rf *.o $(PRG).elf *.eps *.png *.pdf *.bak 

@@ -8,9 +8,20 @@ ser = serial.Serial(
         )
 
 time.sleep(2)
-while(True):
-    ser.write("\x36\x20\x00")
-    print(hex(ord(ser.read(1))))
-    print(hex(ord(ser.read(1))))
-    print(hex(ord(ser.read(1))))
-    print(hex(ord(ser.read(1))))
+ser.write("\x36\x20\x00")
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))
+
+
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))
+
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))
+print(hex(ord(ser.read(1))))

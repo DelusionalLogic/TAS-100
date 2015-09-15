@@ -17,7 +17,7 @@ struct Packet {
 };
 
 #define PACKQ_MAX 8
-static struct Packet packQ[8];
+static struct Packet packQ[PACKQ_MAX];
 static uint8_t qTop = 0;
 static uint8_t qBot = 0;
 
@@ -63,7 +63,6 @@ ISR(USART_RX_vect) {
 	}
 	packQ[qTop].seen = 0; //Ready to be read
 	qTop = (qTop + 1) % PACKQ_MAX;
-	putchar(qTop);
 }
 
 uint8_t Packet_waiting() {
