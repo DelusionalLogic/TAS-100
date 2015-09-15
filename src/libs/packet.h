@@ -62,9 +62,7 @@ ISR(USART_RX_vect) {
 		packQ[qTop].data[i] = getchar();
 	}
 	packQ[qTop].seen = 0; //Ready to be read
-	qTop++;
-	if(qTop >= PACKQ_MAX)
-		qTop = 0;
+	qTop = (qTop + 1) % PACKQ_MAX;
 	putchar(qTop);
 }
 
@@ -73,15 +71,16 @@ uint8_t Packet_waiting() {
 }
 
 struct Packet* Packet_get() {
-	if(qBot >= PACKQ_MAX)
-		qBot = 0;
-	if(packQ[qBot].seen != 0)
+	uint8_t oldBot = qBot;
+	qBot = (qBot + 1) % PACKQ_MAX;
+	if(packQ[oldBot].seen != 0)
 		return NULL;
 	
-	return &packQ[qBot++];
+	return &packQ[oldBot];
 }
 
 void Packet_put(struct Packet* packet) {
+	cli();
 	putchar(packet->recv);
 	putchar(packet->type);
 	putchar(packet->length);
@@ -89,6 +88,7 @@ void Packet_put(struct Packet* packet) {
 	for(uint8_t i = 0; i < packet->length; i++) {
 		putchar(packet->data[i]);
 	}
+	sei();
 }
 
 #endif

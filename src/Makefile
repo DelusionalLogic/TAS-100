@@ -84,7 +84,7 @@ main.o: main.c
 #blink.flash: blink.o flash
 
 %.flash: %.o
-	avrdude -D -C "$(DUDECONF)" -p $(MCU_TARGET) -P $(PORT) -c arduino -b 115200 -V -F -U flash:w:$(@:.flash=.hex):i
+	avrdude -D -p $(MCU_TARGET) -P $(PORT) -c arduino -b 115200 -V -F -U flash:w:$(@:.flash=.hex):i
 
 clean:
 	rm -rf *.o $(PRG).elf *.eps *.png *.pdf *.bak 

@@ -7,8 +7,10 @@ ser = serial.Serial(
         bytesize = serial.EIGHTBITS
         )
 
-ser.write("\x36\x20\x00")
-print(hex(ord(ser.read(1))))
-print(hex(ord(ser.read(1))))
-print(hex(ord(ser.read(1))))
-print(hex(ord(ser.read(1))))
+time.sleep(2)
+while(True):
+    ser.write("\x36\x20\x00")
+    print(hex(ord(ser.read(1))))
+    print(hex(ord(ser.read(1))))
+    print(hex(ord(ser.read(1))))
+    print(hex(ord(ser.read(1))))
