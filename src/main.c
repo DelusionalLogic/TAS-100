@@ -27,7 +27,7 @@ static inline void mov() {
 
 	if(dst.type == OP_REGISTER) {
 		SET_REG(dst.reg, im);
-	} else if(src.type == OP_LITERAL) {
+	} else if(dst.type == OP_LITERAL) {
 		//This doesn't make any sense. Assign value to lit?
 	}
 	NEXT_INSTR();
