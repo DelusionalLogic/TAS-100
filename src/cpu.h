@@ -28,7 +28,7 @@ int16_t registers[4] = { 0xABAB, 0, 0, 0 };
 #define GET_REG(reg) (registers[reg])
 #define SET_REG(reg, val) do{ registers[reg] = val; } while(0)
 
-uint16_t instr[32] = {
+uint16_t instr[30] = {
 	0x0011, 0x0140,
 	0x0002, 0x0000,
 	0x0002, 0x0000,
@@ -42,7 +42,7 @@ uint16_t instr[32] = {
 
 #define NEXT_INSTR()  do{ \
 	registers[REG_PC]+=2;\
-	if(registers[REG_PC] >= 32 || GET_OPC() == 0x00)\
+	if(registers[REG_PC] >= 30 || GET_OPC() == 0x00)\
 		registers[REG_PC] = 0;\
 }while(0)
 
