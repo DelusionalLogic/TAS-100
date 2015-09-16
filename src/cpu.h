@@ -11,6 +11,7 @@ enum Upcode {
 	UPC_ADD,
 	UPC_SUB,
 	UPC_NEG,
+	UPC_NOP,
 	UPC_SWP,
 	UPC_SAV,
 	UPC_JMP,

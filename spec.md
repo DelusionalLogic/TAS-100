@@ -37,14 +37,15 @@ on the opcode. [DST] can not be a literal. (Differs from the game)
 | ADD    | 0x2      | [SRC]          |
 | SUB    | 0x3      | [SRC]          |
 | NEG    | 0x4      |                |
-| SWP    | 0x5      |                |
-| SAV    | 0x6      |                |
-| JMP    | 0x7      | [INSTR]        |
-| JEZ    | 0x8      | [INSTR]        |
-| JNZ    | 0x9      | [INSTR]        |
-| JGZ    | 0xA      | [INSTR]        |
-| JLZ    | 0xB      | [INSTR]        |
-| JRO    | 0xC      | [SRC]          |
+| NOP    | 0x5      |                |
+| SWP    | 0x6      |                |
+| SAV    | 0x7      |                |
+| JMP    | 0x8      | [INSTR]        |
+| JEZ    | 0x9      | [INSTR]        |
+| JNZ    | 0xA      | [INSTR]        |
+| JGZ    | 0xB      | [INSTR]        |
+| JLZ    | 0xC      | [INSTR]        |
+| JRO    | 0xD      | [SRC]          |
 
 The J?? opcodes jump in the program execution. [INSTR] is an absolute value to
 jump to, while JRO takes a value relative to the JRO instruction itself.
