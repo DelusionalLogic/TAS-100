@@ -6,12 +6,11 @@
 #include <avr/eeprom.h>
 #include "cpu.h"
 #include "libs/packet.h"
+#include "display.h"
 
 
 
 uint8_t ID = 0;
-struct Packet pack;
-int16_t lit;
 
 static inline void mov() {
 	struct Operand src;
@@ -38,14 +37,6 @@ static inline void jmp() {
 	struct Operand ins;
 	DECODE_OP(GET_B(), &ins);
 
-	struct Packet newPack;
-	newPack.recv = 0xFF;
-	newPack.type = 0x11;
-	newPack.length = 0x02;
-	newPack.data[0] = (ins.litValue >> 8) & 0xFF;
-	newPack.data[1] = (ins.litValue) & 0xFF;
-	Packet_put(&newPack);
-
 	SET_REG(REG_PC, ins.litValue);
 }
 
@@ -65,62 +56,58 @@ int main (void)
 	struct Packet* pack = NULL;
 	while(pack == NULL) pack = Packet_get();
 	Packet_put(pack);
-	_delay_ms(1000);
-
-	struct Packet newPack;
-	newPack.recv = 0xFF;
-	newPack.type = 0x11;
-	newPack.length = 0x02;
-	newPack.data[0] = (GET_REG(REG_ACC) >> 8) & 0xFF;
-	newPack.data[1] = (GET_REG(REG_ACC)) & 0xFF;
-	Packet_put(&newPack);
+	updateScreen();
 
 	while(true) {
 		PORTB |= 0b00100000;
 		while((PIND & 0b00000100) != 0) {}
 		uint8_t opcode = GET_OPC();
 		switch(opcode) {
-			case UPC_MOV:
+			case OPC_MOV:
 				mov();
 				break;
-			case UPC_ADD:
+			case OPC_ADD:
 				SET_REG(REG_ACC, GET_REG(REG_ACC)+1);
 				NEXT_INSTR();
 				break;
-			case UPC_SUB:
+			case OPC_SUB:
 				SET_REG(REG_ACC, GET_REG(REG_ACC)-1);
 				NEXT_INSTR();
 				break;
-			case UPC_NEG:
+			case OPC_NEG:
 				SET_REG(REG_ACC, -GET_REG(REG_ACC));
 				NEXT_INSTR();
 				break;
-			case UPC_NOP:
+			case OPC_NOP:
 				NEXT_INSTR();
 				break;
-			case UPC_SWP: {
+			case OPC_SWP: {
 				int16_t im = GET_REG(REG_ACC);
 				SET_REG(REG_ACC, GET_REG(REG_BAK));
 				SET_REG(REG_BAK, im);
 				NEXT_INSTR();
 				break;
 		    }
-			case UPC_SAV:
+			case OPC_SAV:
 				SET_REG(REG_BAK, GET_REG(REG_ACC));
 				NEXT_INSTR();
 				break;
-			case UPC_JMP:
+			case OPC_JMP:
 				jmp();
 				break;
 		}
 
 		//Write ACC to packet
+		/*
 		newPack.recv = 0xFF;
 		newPack.type = 0x11;
 		newPack.length = 0x02;
 		newPack.data[0] = (GET_REG(REG_ACC) >> 8) & 0xFF;
 		newPack.data[1] = (GET_REG(REG_ACC)) & 0xFF;
 		Packet_put(&newPack);
+		*/
+
+		updateScreen();
 
 		PORTB = 0;
 		_delay_ms(500);
