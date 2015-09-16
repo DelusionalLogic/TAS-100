@@ -95,6 +95,9 @@ int main (void)
 				SET_REG(REG_ACC, -GET_REG(REG_ACC));
 				NEXT_INSTR();
 				break;
+			case UPC_NOP:
+				NEXT_INSTR();
+				break;
 			case UPC_SWP: {
 				int16_t im = GET_REG(REG_ACC);
 				SET_REG(REG_ACC, GET_REG(REG_BAK));
