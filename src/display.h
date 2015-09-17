@@ -95,13 +95,14 @@ void updateScreen() {
 			otoa(GET_A(), buff);
 			d_putstr(buff, 18);
 			break;
+		case OPC_ADD:
+		case OPC_SUB:
 		case OPC_JMP:
 		case OPC_JEZ:
 		case OPC_JNZ:
 		case OPC_JGZ:
 		case OPC_JLZ:
 		case OPC_JRO:
-			d_putstr("VALUE", 5);
 			d_putchar(' ');
 			otoa(GET_B(), buff);
 			d_putstr(buff, 18);
@@ -131,6 +132,8 @@ void updateScreen() {
 				otoa(GET_A_AT(i), buff);
 				d_putstr(buff, 18);
 				break;
+			case OPC_ADD:
+			case OPC_SUB:
 			case OPC_JMP:
 			case OPC_JEZ:
 			case OPC_JNZ:

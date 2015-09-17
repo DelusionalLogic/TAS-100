@@ -12,7 +12,7 @@
 
 uint8_t ID = 0;
 
-static inline void mov() {
+static void mov() {
 	struct Operand src;
 	struct Operand dst;
 	DECODE_OP(GET_B(), &src);
@@ -33,12 +33,55 @@ static inline void mov() {
 	return;
 }
 
-static inline void jmp() {
+static void add() {
+	struct Operand b;
+	DECODE_OP(GET_B(), &b);
+
+	if(b.type == OP_REGISTER) {
+		SET_REG(REG_ACC, GET_REG(REG_ACC) + GET_REG(b.reg));
+	} else if(b.type == OP_LITERAL) {
+		SET_REG(REG_ACC, GET_REG(REG_ACC) + b.litValue);
+	}
+	NEXT_INSTR();
+}
+
+static void sub() {
+	struct Operand b;
+	DECODE_OP(GET_B(), &b);
+
+	if(b.type == OP_REGISTER) {
+		SET_REG(REG_ACC, GET_REG(REG_ACC) - GET_REG(b.reg));
+	} else if(b.type == OP_LITERAL) {
+		SET_REG(REG_ACC, GET_REG(REG_ACC) - b.litValue);
+	}
+	NEXT_INSTR();
+}
+
+static void jmp() {
 	struct Operand ins;
 	DECODE_OP(GET_B(), &ins);
 
 	SET_REG(REG_PC, ins.litValue);
 }
+
+typedef void (*instrFunc)();
+
+instrFunc handlers[] = {
+	NULL, //EMPTY OPCODE
+	mov,
+	add,
+	sub,
+	NULL, //NEG
+	NULL, //NOP
+	NULL, //SWP
+	NULL, //SAV
+	jmp,
+	NULL, //JEZ
+	NULL, //JNZ
+	NULL, //JGZ
+	NULL, //JLZ
+	NULL, //JRO
+};
 
 int main (void)
 {
@@ -62,40 +105,7 @@ int main (void)
 		PORTB |= 0b00100000;
 		while((PIND & 0b00000100) != 0) {}
 		uint8_t opcode = GET_OPC();
-		switch(opcode) {
-			case OPC_MOV:
-				mov();
-				break;
-			case OPC_ADD:
-				SET_REG(REG_ACC, GET_REG(REG_ACC)+1);
-				NEXT_INSTR();
-				break;
-			case OPC_SUB:
-				SET_REG(REG_ACC, GET_REG(REG_ACC)-1);
-				NEXT_INSTR();
-				break;
-			case OPC_NEG:
-				SET_REG(REG_ACC, -GET_REG(REG_ACC));
-				NEXT_INSTR();
-				break;
-			case OPC_NOP:
-				NEXT_INSTR();
-				break;
-			case OPC_SWP: {
-				int16_t im = GET_REG(REG_ACC);
-				SET_REG(REG_ACC, GET_REG(REG_BAK));
-				SET_REG(REG_BAK, im);
-				NEXT_INSTR();
-				break;
-			}
-			case OPC_SAV:
-				SET_REG(REG_BAK, GET_REG(REG_ACC));
-				NEXT_INSTR();
-				break;
-			case OPC_JMP:
-				jmp();
-				break;
-		}
+		handlers[opcode]();
 
 		//Write ACC to packet
 		/*

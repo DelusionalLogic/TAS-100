@@ -27,13 +27,20 @@ enum Opcode {
 enum Register { REG_ACC, REG_BAK, REG_NIL, REG_PC };
 int16_t registers[4] = { 0, 0, 0, 0 };
 #define GET_REG(reg) (registers[reg])
-#define SET_REG(reg, val) do{ registers[reg] = val; } while(0)
+#define SET_REG(reg, val) do{ \
+	if(val >= 999)\
+		registers[reg] = 999;\
+	else if(val <= -999)\
+		registers[reg] = -999;\
+	else\
+		registers[reg] = val;\
+} while(0)\
 
 uint16_t instr[30] = {
 	0x0011, 0x0140,
-	0x0002, 0x0000,
-	0x0002, 0x0000,
-	0x0002, 0x0000,
+	0x0002, 0x0010,
+	0x0002, 0x0010,
+	0x0002, 0x00B0,
 	0x0008, 0x00B0,
 };
 
