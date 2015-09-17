@@ -87,7 +87,7 @@ int main (void)
 				SET_REG(REG_BAK, im);
 				NEXT_INSTR();
 				break;
-		    }
+			}
 			case OPC_SAV:
 				SET_REG(REG_BAK, GET_REG(REG_ACC));
 				NEXT_INSTR();

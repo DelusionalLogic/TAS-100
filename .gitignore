@@ -33,3 +33,5 @@
 
 # Map
 *.map
+
+.ycm_extra_conf*
