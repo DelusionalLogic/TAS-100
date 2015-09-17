@@ -1,5 +1,5 @@
 PRG            = main
-OBJ            = main.o
+OBJ            = main.o interpreter.o cpu.o display.o
 #MCU_TARGET     = at90s2313
 #MCU_TARGET     = at90s2333
 #MCU_TARGET     = at90s4414
@@ -59,7 +59,7 @@ DUDECONF        = /usr/share/arduino/hardware/tools/avr/etc/avrdude.conf
 PORT            = /dev/ttyACM0
 
 DEFS           = -DF_CPU=$(CPUFREQ) -DBAUD=9600
-LIBS           = -I libs
+LIBS           = -Ilibs
 
 # You should not have to change anything below here.
 
@@ -80,8 +80,9 @@ $(PRG).elf: $(OBJ)
 
 # dependency:
 main.o: main.c
-#blink.flash: FFILE=blink.o
-#blink.flash: blink.o flash
+interpreter.o: interpreter.c
+cpu.o: cpu.c
+display.o: display.c
 
 %.flash: %.hex %.elf
 	avrdude -D -p $(MCU_TARGET) -P $(PORT) -c arduino -b 115200 -V -F -U flash:w:$(@:.flash=.hex)
