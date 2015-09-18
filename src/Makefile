@@ -1,5 +1,5 @@
 PRG            = main
-OBJ            = main.o interpreter.o cpu.o display.o
+OBJ            = main.o interpreter.o cpu.o display.o libs/packet.o libs/TWI_slave.o
 #MCU_TARGET     = at90s2313
 #MCU_TARGET     = at90s2333
 #MCU_TARGET     = at90s4414
@@ -83,6 +83,8 @@ main.o: main.c
 interpreter.o: interpreter.c
 cpu.o: cpu.c
 display.o: display.c
+libs/packet.o: libs/packet.c
+libs/TWI_slave.o: libs/TWI_slave.c
 
 %.flash: %.hex %.elf
 	avrdude -D -p $(MCU_TARGET) -P $(PORT) -c arduino -b 115200 -V -F -U flash:w:$(@:.flash=.hex)
