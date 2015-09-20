@@ -30,7 +30,8 @@ uint8_t Packet_get(struct Packet* packet) {
 				packet->checksum = (recvBuff[2+packet->length] << 8) | recvBuff[3+packet->length];
 				
 				if(checksum != 0) {
-					packet->type =
+					packet->type = PT_NACK;
+					packet->length = 0;
 				}
 			}
 		}
