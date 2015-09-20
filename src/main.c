@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>
+#include <util/setbaud.h>
 
 #include "libs/packet.h"
 #include "libs/TWI_slave.h"
@@ -18,30 +19,37 @@ int main (void)
 	PORTD |= 0b00000100;
 	DDRB  =  0b00100000;
 
+	UBRR0H = UBRRH_VALUE;
+	UBRR0L = UBRRL_VALUE;
 
-	TWI_Slave_Initialise((0x64<<TWI_ADR_BITS) | (TRUE<<TWI_GEN_BIT));
-	Packet_init();
-	sei();
+#if USE_2X
+	UCSR0A |= _BV(U2X0);
+#else
+	UCSR0A &= ~(_BV(U2X0));
+#endif
+
+	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); /* 8-bit data */
+	UCSR0B = _BV(RXEN0) | _BV(TXEN0);   /* Enable RX and TX */
+
+
 	eeprom_busy_wait();
+	eeprom_write_byte(0x00, 0x64);
 	ID = eeprom_read_byte(0x00); //The ID is stored in the first byte
+	Packet_init(ID);
+	sei();
 
-	TWI_Start_Transceiver();
+	struct Packet pack;
 	while(true) {
-		uint8_t buff[2];
-		if(!TWI_Transceiver_Busy()) {
-			if(TWI_statusReg.lastTransOK) {
-				if(TWI_statusReg.RxDataInBuf) {
-					TWI_Get_Data_From_Transceiver(buff, 2);
-					PORTB = buff[0];
-					TWI_Start_Transceiver_With_Data(buff, 1);
-				}
+		if(Packet_get(&pack) == 0) {
+			if(pack.type == PT_PING) {
+				pack.type = PT_PONG;
+				pack.length = 0;
+				Packet_put(&pack);
 			}
 		}
+		_delay_ms(100);
 	}
 
-	struct Packet* pack = NULL;
-	while(pack == NULL) pack = Packet_get();
-	Packet_put(pack);
 	updateScreen();
 
 

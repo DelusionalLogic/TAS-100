@@ -7,35 +7,81 @@
 static uint8_t sendBuff[sizeof(struct Packet)];
 static uint8_t recvBuff[sizeof(struct Packet)];
 
-static inline uint8_t checksum(uint8_t data[], uint8_t length) {
-	//TODO: write checksum
+static inline uint16_t checksum(struct Packet* packet) {
+	uint16_t crc = 0xFFFF;
+
+	crc = _crc16_update(crc, packet->type);
+	crc = _crc16_update(crc, packet->length);
+	
+	for(int i = 0; i < packet->length; i++) {
+		crc = _crc16_update(crc, packet->data[i]);
+	}
+	return crc;
 }
 
 void Packet_init(uint8_t id) {
-	TWI_Slave_Initialise(id);
+	TWI_Slave_Initialise((id << TWI_ADR_BITS) | (TRUE << TWI_GEN_BIT));
 	TWI_Start_Transceiver();
 }
 
-//Packet is destroyed when this method returns 1
+struct Packet ackPack = {
+	.type = PT_ACK,
+	.length = 0
+};
+
+void uart_putchar(char c) {
+	loop_until_bit_is_set(UCSR0A, UDRE0); /* Wait until data register empty. */
+    UDR0 = c;
+}
+
+//packet param is in an undefined state when return value is != 0
 uint8_t Packet_get(struct Packet* packet) {
 	if(!TWI_Transceiver_Busy()) {
 		if(TWI_statusReg.lastTransOK) {
 			if(TWI_statusReg.RxDataInBuf){
-				TWI_Get_Data_From_Transceiver(recvBuff, sizeof(recvBuff));
+				TWI_Get_Data_From_Transceiver(recvBuff, sizeof(uint8_t) * 2); //READ HEADER
 				packet->type = recvBuff[0];
 				packet->length = recvBuff[1];
 
-				memcpy(packet->data, recvBuff + 2, packet->length);
+				TWI_Get_Data_From_Transceiver(recvBuff, sizeof(uint8_t) * (packet->length + 2)); //READ DATA AND FOOTER
+				memcpy(packet->data, recvBuff, packet->length);
 				
-				packet->checksum = (recvBuff[2+packet->length] << 8) | recvBuff[3+packet->length];
+				packet->checksum = (recvBuff[packet->length] << 8) | recvBuff[1+packet->length];
 				
-				if(checksum != 0) {
+
+					uart_putchar('R');
+					uart_putchar((checksum(packet) >> 8) & 0xFF);
+					uart_putchar(checksum(packet) & 0xFF);
+
+					uart_putchar('T');
+					uart_putchar(recvBuff[packet->length]);
+					uart_putchar(recvBuff[1+packet->length]);
+
+				if(checksum(packet) != packet->checksum) {
 					packet->type = PT_NACK;
 					packet->length = 0;
+					
+					Packet_put(packet);
+					return 10;
 				}
+				if(packet->type == PT_NACK){
+					TWI_Start_Transceiver_With_Data(sendBuff, 4 + sendBuff[1]);
+				}
+				return 0;
+			} else {
+				return 1;
+			}
+		} else {
+			if(TWI_statusReg.RxDataInBuf) {
+				packet->type = PT_NACK;
+				packet->length = 0;
+
+				Packet_put(packet);
+				return 10;
 			}
 		}
 	}
+	return 1;
 }
 
 void Packet_noput() {
@@ -43,6 +89,8 @@ void Packet_noput() {
 }
 
 void Packet_put(struct Packet* packet) {
+	packet->checksum = checksum(packet);
+
 	cli();
 
 	sendBuff[0] = packet->type;

@@ -10,7 +10,7 @@
 
 struct Packet {
 	enum { 
-		PT_ACK,
+		PT_ACK = 0x01,
 		PT_NACK,
 		PT_PING,
 		PT_PONG,
@@ -23,10 +23,17 @@ struct Packet {
 	uint8_t length;
 	uint8_t data[32];
 	uint16_t checksum;
+
+
+	//No transmit:
+	bool broadcast;
 };
+
+extern struct Packet ackPack; //Ack packet template
 
 void Packet_init(uint8_t id);
 
-struct Packet* Packet_get();
+uint8_t Packet_get(struct Packet* packet);
+void Packet_noput();
 void Packet_put(struct Packet* packet);
 #endif
