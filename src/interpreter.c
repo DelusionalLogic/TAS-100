@@ -74,5 +74,6 @@ instrFunc handlers[] = {
 
 void interpret() {
 	uint8_t opcode = GET_OPC();
-	handlers[opcode]();
+	if(handlers[opcode] != NULL)
+		handlers[opcode]();
 }

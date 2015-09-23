@@ -10,14 +10,17 @@
 
 struct Packet {
 	enum { 
-		PT_ACK = 0x01,
+		PT_ACK          = 0x01,
 		PT_NACK,
 		PT_PING,
 		PT_PONG,
-		PT_SETID,
+		PT_SETID        = 0x10,
 		PT_SETPROG,
-		PT_GETID,
+		PT_SETLABEL,
+		PT_SETREG,
+		PT_GETID        = 0x20,
 		PT_GETPROG,
+		PT_GETLABEL,
 		PT_GETREG,
 	} type;
 	uint8_t length;

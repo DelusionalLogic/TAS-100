@@ -38,9 +38,12 @@ Packet Types
 | 0x04   | PONG      | PONG               | [NONE]                                    |
 | 0x10   | SETID     | Set device ID      | (uint8)New id                             |
 | 0x11   | SETPROG   | Set program line   | (uint8)Program line, (uint32)instructions |
+| 0x12   | SETLABEL  | Set program label  | (uint8)Program line, (str18b)label        |
+| 0x13   | SETREG    | Set register       | (uint8)Reg id, (uint16) value             |
 | 0x20   | GETID     | Get device ID      | [NONE]                                    |
 | 0x21   | GETPROG   | Get program line   | (uint8Program line                        |
-| 0x22   | GETREG    | Get Register       | (uint8)Register (0 for acc, 1 for bak)    |
+| 0x22   | GETLABEL  | Get program label  | (uint8)Program line,                      |
+| 0x23   | GETREG    | Get Register       | (uint8)Register (0 for acc, 1 for bak)    |
 
 ACK/NACK
 --------

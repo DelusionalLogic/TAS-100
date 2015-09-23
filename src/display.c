@@ -38,6 +38,10 @@ const char Register[][REG_LEN] PROGMEM = {
 	"PC\0",
 };
 
+char labels[15][19] = {
+	{0},
+};
+
 static void d_putchar(char c) {
 	loop_until_bit_is_set(UCSR0A, UDRE0);
 	UDR0 = c;

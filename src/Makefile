@@ -92,6 +92,7 @@ libs/TWI_slave.o: libs/TWI_slave.c
 
 clean:
 	rm -rf *.o $(PRG).elf *.eps *.png *.pdf *.bak 
+	rm -rf libs/*.o
 	rm -rf *.lst *.map $(EXTRA_CLEAN_FILES)
 	rm -rf *.bin *.hex *.srec
 

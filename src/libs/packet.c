@@ -29,33 +29,21 @@ struct Packet ackPack = {
 	.length = 0
 };
 
-void uart_putchar(char c) {
-	loop_until_bit_is_set(UCSR0A, UDRE0); /* Wait until data register empty. */
-    UDR0 = c;
-}
-
 //packet param is in an undefined state when return value is != 0
 uint8_t Packet_get(struct Packet* packet) {
 	if(!TWI_Transceiver_Busy()) {
 		if(TWI_statusReg.lastTransOK) {
 			if(TWI_statusReg.RxDataInBuf){
+				packet->broadcast = TWI_statusReg.genAddressCall ? true : false;
 				TWI_Get_Data_From_Transceiver(recvBuff, sizeof(uint8_t) * 2); //READ HEADER
 				packet->type = recvBuff[0];
 				packet->length = recvBuff[1];
 
 				TWI_Get_Data_From_Transceiver(recvBuff, sizeof(uint8_t) * (packet->length + 4)); //READ DATA AND FOOTER
+
 				memcpy(packet->data, recvBuff + 2, packet->length);
 				
 				packet->checksum = (recvBuff[packet->length + 2] << 8) | recvBuff[packet->length + 3];
-				
-
-					uart_putchar('R');
-					uart_putchar((checksum(packet) >> 8) & 0xFF);
-					uart_putchar(checksum(packet) & 0xFF);
-
-					uart_putchar('T');
-					uart_putchar(recvBuff[packet->length + 2]);
-					uart_putchar(recvBuff[packet->length + 3]);
 
 				if(checksum(packet) != packet->checksum) {
 					packet->type = PT_NACK;
