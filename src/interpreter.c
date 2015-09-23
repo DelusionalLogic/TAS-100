@@ -48,6 +48,27 @@ static void sub() {
 	NEXT_INSTR();
 }
 
+static void neg() {
+	SET_REG(REG_ACC, -GET_REG(REG_ACC));
+	NEXT_INSTR();
+}
+
+static void nop() {
+	NEXT_INSTR();
+}
+
+static void swp() {
+	int16_t temp = GET_REG(REG_ACC);
+	SET_REG(REG_ACC, GET_REG(REG_BAK));
+	SET_REG(REG_BAK, temp);
+	NEXT_INSTR();
+}
+
+static void sav() {
+	SET_REG(REG_BAK, GET_REG(REG_ACC));
+	NEXT_INSTR();
+}
+
 static void jmp() {
 	struct Operand ins;
 	DECODE_OP(GET_B(), &ins);
@@ -55,20 +76,60 @@ static void jmp() {
 	SET_REG(REG_PC, ins.litValue);
 }
 
+static void jez() {
+	struct Operand ins;
+	DECODE_OP(GET_B(), &ins);
+
+	if(GET_REG(REG_ACC) == 0)
+		SET_REG(REG_PC, ins.litValue);
+	else
+		NEXT_INSTR();
+}
+
+static void jnz() {
+	struct Operand ins;
+	DECODE_OP(GET_B(), &ins);
+
+	if(GET_REG(REG_ACC) != 0)
+		SET_REG(REG_PC, ins.litValue);
+	else
+		NEXT_INSTR();
+}
+
+static void jgz() {
+	struct Operand ins;
+	DECODE_OP(GET_B(), &ins);
+
+	if(GET_REG(REG_ACC) > 0)
+		SET_REG(REG_PC, ins.litValue);
+	else
+		NEXT_INSTR();
+}
+
+static void jlz() {
+	struct Operand ins;
+	DECODE_OP(GET_B(), &ins);
+
+	if(GET_REG(REG_ACC) < 0)
+		SET_REG(REG_PC, ins.litValue);
+	else
+		NEXT_INSTR();
+}
+
 instrFunc handlers[] = {
 	NULL, //EMPTY OPCODE
 	mov,
 	add,
 	sub,
-	NULL, //NEG
-	NULL, //NOP
-	NULL, //SWP
-	NULL, //SAV
+	neg,
+	nop,
+	swp,
+	sav,
 	jmp,
-	NULL, //JEZ
-	NULL, //JNZ
-	NULL, //JGZ
-	NULL, //JLZ
+	jez,
+	jnz,
+	jgz,
+	jlz,
 	NULL, //JRO
 };
 
