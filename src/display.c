@@ -38,7 +38,7 @@ const char Register[][REG_LEN] PROGMEM = {
 	"PC\0",
 };
 
-char labels[15][19] = {
+volatile char labels[15][19] = {
 	{0},
 };
 
@@ -79,6 +79,9 @@ void updateScreen() {
 	itoa(GET_OPC(), buff, 16);
 	d_putstr(buff, strlen(buff));
 	d_putstr(", A = 0x", 8);
+	itoa(GET_A(), buff, 16);
+	d_putstr(buff, strlen(buff));
+	d_putstr(", B = 0x", 8);
 	itoa(GET_B(), buff, 16);
 	d_putstr(buff, strlen(buff));
 
@@ -90,13 +93,22 @@ void updateScreen() {
 	d_putchar('\n');
 
 	for(uint8_t i = 0; i < 15; i++) {
-		if(GET_OPC_AT(i) == 0)
-			continue;
-
 		if(i == GET_REG(REG_PC))
 			d_putchar('#');
 		else
 			d_putchar(' ');
+
+		if(labels[i][0] != '\0') {
+			d_putstr(labels[i], strlen(labels[i]));
+			d_putchar(':');
+			d_putchar(' ');
+		}
+
+		if(GET_OPC_AT(i) == 0) {
+			d_putchar('E');
+			d_putchar('\n');
+			continue;
+		}
 
 		strncpy_P(buff, Instruction[GET_OPC_AT(i)-1], OPC_LEN);
 		d_putstr(buff, OPC_LEN);
@@ -112,15 +124,23 @@ void updateScreen() {
 				break;
 			case OPC_ADD:
 			case OPC_SUB:
+			case OPC_JRO:
+				d_putchar(' ');
+				otoa(GET_A_AT(i), buff);
+				d_putstr(buff, 18);
+				break;
 			case OPC_JMP:
 			case OPC_JEZ:
 			case OPC_JNZ:
 			case OPC_JGZ:
-			case OPC_JLZ:
-			case OPC_JRO:
+			case OPC_JLZ: {
 				d_putchar(' ');
-				otoa(GET_B_AT(i), buff);
-				d_putstr(buff, 18);
+				struct Operand dst;
+				DECODE_OP(GET_A_AT(i), &dst);
+				d_putstr(labels[dst.litValue], strlen(labels[dst.litValue]));
+				break;
+			}
+			default:
 				break;
 		}
 

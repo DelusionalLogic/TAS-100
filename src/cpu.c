@@ -2,9 +2,9 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
-int16_t registers[4] = { 0, 0, 0, 0 };
+volatile int16_t registers[4] = { 0, 0, 0, 0 };
 
-uint16_t instr[30] = {
+volatile uint16_t instr[30] = {
 	/* TEST PROGRAM */
 	/* 0x0011, 0x0140, */
 	/* 0x0002, 0x0010, */

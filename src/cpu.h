@@ -25,7 +25,7 @@ enum Opcode {
 //Lets just pretend that NIL is actually a register.
 //As long as we never read from it that should work
 enum Register { REG_ACC, REG_BAK, REG_NIL, REG_PC };
-extern int16_t registers[4];
+extern volatile int16_t registers[4];
 #define GET_REG(reg) (registers[reg])
 #define SET_REG(reg, val) do{ \
 	if(val >= 999)\
@@ -37,7 +37,7 @@ extern int16_t registers[4];
 } while(0)\
 
 
-extern uint16_t instr[30];
+extern volatile uint16_t instr[30];
 #define GET_OPC() GET_OPC_AT(GET_REG(REG_PC))
 #define GET_A() GET_A_AT(GET_REG(REG_PC))
 #define GET_B() GET_B_AT(GET_REG(REG_PC))
@@ -46,10 +46,22 @@ extern uint16_t instr[30];
 #define GET_A_AT(LINE) ((instr[LINE*2] >> 4) & 0xFFF)
 #define GET_B_AT(LINE) ((instr[(LINE*2)+1] >> 4) & 0xFFF)
 
+#define CHECK_INSTR() do { \
+	if(GET_OPC() == 0x00) {\
+		for(int i = registers[REG_PC]+1; i != registers[REG_PC]; i++) { \
+			if(GET_OPC_AT(i) != 0x00){ \
+				registers[REG_PC] = i; \
+				break;\
+			}\
+			if(i >= 15)\
+				i = 0;\
+		}\
+	}\
+}while(0)
+
 #define NEXT_INSTR()  do{ \
 	registers[REG_PC]++;\
-	if(registers[REG_PC] >= 15 || GET_OPC() == 0x00)\
-		registers[REG_PC] = 0;\
+	CHECK_INSTR();\
 }while(0)
 
 enum Port { PORT_LEFT, PORT_RIGHT, PORT_UP, PORT_DOWN, PORT_ANY, PORT_LAST };

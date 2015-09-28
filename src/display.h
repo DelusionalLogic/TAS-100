@@ -3,7 +3,7 @@
 
 #include <avr/io.h>
 
-extern char labels[15][19];
+extern volatile char labels[15][19];
 
 void updateScreen();
 

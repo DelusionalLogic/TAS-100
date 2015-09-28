@@ -108,13 +108,12 @@ int main (void)
 	TCCR2B |= (1 << WGM12) | (1 << CS10) | (1 << CS12);
 	TIMSK2 = (1 << OCIE2A);
 
-
 	eeprom_busy_wait();
 	ID = eeprom_read_byte(ID_LOC); //The ID is stored in the first byte
 
 	Packet_init(ID);
-
 	sei();
+
 	///////////////////
 	///PROGRAM BLOCK///
 	///////////////////

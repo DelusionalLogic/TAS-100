@@ -28,7 +28,7 @@ The values of a and b are interpreted as specified in the table below
 | 0x0A-0x7D8  | Literal values [-999..999] (only for b) |
 
 When the instructions are executed the a and b values are used as source ([SRC])
-and destination ([DST]). a is always [DST] while b is [SRC] or [INSTR] depending
+and destination ([DST]). a is [DST] and the preferred parameter  while b is [SRC] depending
 on the opcode. [DST] can not be a literal. (Differs from the game)
 
 | Name   | Opcode   | Params         |

@@ -26,7 +26,7 @@ static void mov() {
 
 static void add() {
 	struct Operand b;
-	DECODE_OP(GET_B(), &b);
+	DECODE_OP(GET_A(), &b);
 
 	if(b.type == OP_REGISTER) {
 		SET_REG(REG_ACC, GET_REG(REG_ACC) + GET_REG(b.reg));
@@ -38,7 +38,7 @@ static void add() {
 
 static void sub() {
 	struct Operand b;
-	DECODE_OP(GET_B(), &b);
+	DECODE_OP(GET_A(), &b);
 
 	if(b.type == OP_REGISTER) {
 		SET_REG(REG_ACC, GET_REG(REG_ACC) - GET_REG(b.reg));
@@ -71,52 +71,70 @@ static void sav() {
 
 static void jmp() {
 	struct Operand ins;
-	DECODE_OP(GET_B(), &ins);
+	DECODE_OP(GET_A(), &ins);
 
 	SET_REG(REG_PC, ins.litValue);
+	CHECK_INSTR();
 }
 
 static void jez() {
 	struct Operand ins;
-	DECODE_OP(GET_B(), &ins);
+	DECODE_OP(GET_A(), &ins);
 
-	if(GET_REG(REG_ACC) == 0)
+	if(GET_REG(REG_ACC) == 0) {
 		SET_REG(REG_PC, ins.litValue);
-	else
+		CHECK_INSTR();
+	} else
 		NEXT_INSTR();
 }
 
 static void jnz() {
 	struct Operand ins;
-	DECODE_OP(GET_B(), &ins);
+	DECODE_OP(GET_A(), &ins);
 
-	if(GET_REG(REG_ACC) != 0)
+	if(GET_REG(REG_ACC) != 0) {
 		SET_REG(REG_PC, ins.litValue);
-	else
+		CHECK_INSTR();
+	} else
 		NEXT_INSTR();
 }
 
 static void jgz() {
 	struct Operand ins;
-	DECODE_OP(GET_B(), &ins);
+	DECODE_OP(GET_A(), &ins);
 
-	if(GET_REG(REG_ACC) > 0)
+	if(GET_REG(REG_ACC) > 0) {
 		SET_REG(REG_PC, ins.litValue);
-	else
+		CHECK_INSTR();
+	} else
 		NEXT_INSTR();
 }
 
 static void jlz() {
 	struct Operand ins;
-	DECODE_OP(GET_B(), &ins);
+	DECODE_OP(GET_A(), &ins);
 
-	if(GET_REG(REG_ACC) < 0)
+	if(GET_REG(REG_ACC) < 0) {
 		SET_REG(REG_PC, ins.litValue);
-	else
+		CHECK_INSTR();
+	} else
 		NEXT_INSTR();
 }
 
-instrFunc handlers[] = {
+static void jro() {
+	struct Operand ins;
+	DECODE_OP(GET_A(), &ins);
+
+	if(ins.type == OP_REGISTER) {
+		SET_REG(REG_PC, GET_REG(REG_ACC) + GET_REG(ins.reg));
+		CHECK_INSTR();
+	} else if(ins.type == OP_LITERAL) {
+		SET_REG(REG_PC, GET_REG(REG_ACC) + ins.litValue);
+		CHECK_INSTR();
+	}
+}
+
+instrFunc handlers[14] = {
 	NULL, //EMPTY OPCODE
 	mov,
 	add,
@@ -130,11 +148,11 @@ instrFunc handlers[] = {
 	jnz,
 	jgz,
 	jlz,
-	NULL, //JRO
+	jro, //JRO
 };
 
 void interpret() {
 	uint8_t opcode = GET_OPC();
-	if(handlers[opcode] != NULL)
+	if(opcode >= 0 && opcode < 14 && handlers[opcode] != NULL)
 		handlers[opcode]();
 }
