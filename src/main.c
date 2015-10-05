@@ -4,6 +4,7 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 #include <util/setbaud.h>
+#include <avr/cpufunc.h>
 
 #include "libs/packet.h"
 #include "libs/TWI_slave.h"
@@ -28,6 +29,7 @@ void parsePacket() {
 			cli();
 			ID = pack.data[0];
 			eeprom_write_byte(ID_LOC, pack.data[0]);
+			_MemoryBarrier(); //Lets just make sure that we write that
 			Packet_init(ID);
 			sei();
 			pack.type = PT_ACK;
@@ -39,12 +41,15 @@ void parsePacket() {
 			uint16_t sw = (pack.data[3] << 8) | pack.data[4];
 			instr[line] = fw;
 			instr[line+1] = sw;
+			_MemoryBarrier(); //Lets just make sure that we write that
 			pack.type = PT_ACK;
 			pack.length = 0;
 			Packet_put(&pack);
 		} else if(pack.type == PT_SETLABEL) {
 			uint8_t line = pack.data[0];
-			strncpy(labels[line], (char*)pack.data + 1, 19);
+			strncpy(labels[line], (char*)pack.data + 1, pack.length - 1);
+			labels[line][pack.length] = '\0';
+			_MemoryBarrier(); //Lets just make sure that we write that
 			pack.type = PT_ACK;
 			pack.length = 0;
 			Packet_put(&pack);
@@ -52,6 +57,7 @@ void parsePacket() {
 			uint8_t reg = pack.data[0];
 			int16_t value = (pack.data[1] << 8) | pack.data[2];
 			registers[reg] = value;
+			_MemoryBarrier(); //Lets just make sure that we write that
 			pack.type = PT_ACK;
 			pack.length = 0;
 			Packet_put(&pack);
@@ -59,6 +65,15 @@ void parsePacket() {
 			pack.type = PT_ACK;
 			pack.length = 1;
 			pack.data[0] = ID;
+			Packet_put(&pack);
+		} else if(pack.type == PT_GETPROG) {
+			uint8_t line =  pack.data[0] * 2;
+			pack.type = PT_ACK;
+			pack.data[0] = (instr[line]     >> 8) & 0xFF;
+			pack.data[1] =  instr[line]           & 0xFF;
+			pack.data[2] = (instr[line + 1] >> 8) & 0xFF;
+			pack.data[3] =  instr[line + 1]       & 0xFF;
+			pack.length = 4;
 			Packet_put(&pack);
 		}
 	}
@@ -100,13 +115,13 @@ int main (void)
 	//Serial end
 
 	//Timer setup
-	TCCR2A = 0;
-	TCCR2B = 0;
+	/* TCCR2A = 0; */
+	/* TCCR2B = 0; */
 
-	OCR2A = 255;
+	/* OCR2A = 255; */
 
-	TCCR2B |= (1 << WGM12) | (1 << CS10) | (1 << CS12);
-	TIMSK2 = (1 << OCIE2A);
+	/* TCCR2B |= (1 << WGM12) | (1 << CS10) | (1 << CS12); */
+	/* TIMSK2 = (1 << OCIE2A); */
 
 	eeprom_busy_wait();
 	ID = eeprom_read_byte(ID_LOC); //The ID is stored in the first byte
@@ -123,13 +138,14 @@ int main (void)
 
 	while(true) {
 		PORTB |= 0b00100000;
-		while((PIND & 0b00000100) != 0) {}
+		while((PIND & 0b00000100) == 0) {parsePacket();}
+		_delay_ms(10);
+		while((PIND & 0b00000100) != 0) {parsePacket();}
 		interpret();
 
 		updateScreen();
 
 		PORTB = 0;
-		_delay_ms(500);
 	}
 
 

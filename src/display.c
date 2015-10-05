@@ -105,7 +105,6 @@ void updateScreen() {
 		}
 
 		if(GET_OPC_AT(i) == 0) {
-			d_putchar('E');
 			d_putchar('\n');
 			continue;
 		}
