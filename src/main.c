@@ -8,6 +8,7 @@
 
 #include "libs/packet.h"
 #include "libs/TWI_slave.h"
+#include "libs/ili9340.h"
 #include "display.h"
 #include "cpu.h"
 #include "interpreter.h"
@@ -75,18 +76,13 @@ void parsePacket() {
 			pack.data[3] =  instr[line + 1]       & 0xFF;
 			pack.length = 4;
 			Packet_put(&pack);
+		} else if(pack.type == PT_REDRAW) {
+			pack.type = PT_ACK;
+			pack.length = 0;
+			Packet_put(&pack);
+			redrawScreen();
 		}
 	}
-}
-
-uint8_t count = 0;
-ISR(TIMER2_COMPA_vect) {
-	if(count < 10) {
-		count++;
-		return;
-	}
-	count = 0;
-	parsePacket();
 }
 
 int main (void)
@@ -114,15 +110,6 @@ int main (void)
 	UCSR0B = _BV(RXEN0) | _BV(TXEN0);   /* Enable RX and TX */
 	//Serial end
 
-	//Timer setup
-	/* TCCR2A = 0; */
-	/* TCCR2B = 0; */
-
-	/* OCR2A = 255; */
-
-	/* TCCR2B |= (1 << WGM12) | (1 << CS10) | (1 << CS12); */
-	/* TIMSK2 = (1 << OCIE2A); */
-
 	eeprom_busy_wait();
 	ID = eeprom_read_byte(ID_LOC); //The ID is stored in the first byte
 
@@ -133,6 +120,7 @@ int main (void)
 	///PROGRAM BLOCK///
 	///////////////////
 
+	initScreen();
 	updateScreen();
 
 

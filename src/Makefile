@@ -1,5 +1,5 @@
 PRG            = main
-OBJ            = main.o interpreter.o cpu.o display.o libs/packet.o libs/TWI_slave.o
+OBJ            = main.o interpreter.o cpu.o display.o libs/packet.o libs/TWI_slave.o libs/ili9340.o
 #MCU_TARGET     = at90s2313
 #MCU_TARGET     = at90s2333
 #MCU_TARGET     = at90s4414
