@@ -22,6 +22,7 @@ struct Packet {
 		PT_GETPROG,
 		PT_GETLABEL,
 		PT_GETREG,
+		PT_REDRAW       = 0x30,
 	} type;
 	uint8_t length;
 	uint8_t data[32];
