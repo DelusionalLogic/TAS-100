@@ -5,9 +5,9 @@
 
 #define SCR_HEIGHT 240
 #define SCR_WIDTH  320
-#define BOX_HEIGHT 122
-#define BOX_WIDTH  202
-#define CODE_WIDTH (18*6 + 2)
+#define BOX_HEIGHT (15*13 + 3)
+#define BOX_WIDTH  252
+#define CODE_WIDTH (18*8 + 2)
 #define BOX_TOP (SCR_HEIGHT / 2 - BOX_HEIGHT / 2)
 #define BOX_BOTTOM (SCR_HEIGHT / 2 + BOX_HEIGHT / 2)
 #define BOX_LEFT (SCR_WIDTH / 2 - BOX_WIDTH / 2)
