@@ -4,6 +4,10 @@
 #include "cpu.h"
 #include "libs/ili9340.h"
 
+const unsigned char font[] PROGMEM = {
+	#include "font/font.inc"
+};
+
 #define OPC_LEN 4
 const char Instruction[][OPC_LEN] PROGMEM = {
 	"MOV",
@@ -63,7 +67,7 @@ uint16_t fg;
 void drawInstr(uint8_t i) {
 	buffLen = 0;
 	buff[0] = '\0';
-	uint8_t y = (i * 8) + BOX_TOP + 2;
+	uint8_t y = (i * 13) + BOX_TOP + 2;
 	uint8_t x = BOX_LEFT + 2;
 	if(i == GET_REG(REG_PC)) {
 		fg = 0x0000;
@@ -72,7 +76,7 @@ void drawInstr(uint8_t i) {
 		fg = 0xFFFF;
 		bg = 0x0000;
 	}
-	ili9340_fillRect(x-1, y-1, 109, 9, bg);
+	ili9340_fillRect(x-1, y-1, CODE_WIDTH - 1, 14, bg);
 	ili9340_setBackColor(bg);
 	ili9340_setFrontColor(fg);
 
@@ -140,28 +144,28 @@ void redrawScreen() {
 
 	ili9340_drawFastVLine(BOX_SPLIT, BOX_TOP,    BOX_HEIGHT, 0xFFFF);
 
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*0 + 3, "ACC");
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*0 + 4, "ACC");
 	ili9340_drawFastHLine(BOX_SPLIT,     BOX_TOP + INFO_HEIGHT*1,     INFO_WIDTH, 0xFFFF);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*1 + 3, "BAK");
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*1 + 4, "BAK");
 	ili9340_drawFastHLine(BOX_SPLIT,     BOX_TOP + INFO_HEIGHT*2,     INFO_WIDTH, 0xFFFF);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*2 + 3, "LAST");
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*2 + 4, "LAST");
 	ili9340_drawFastHLine(BOX_SPLIT,     BOX_TOP + INFO_HEIGHT*3,     INFO_WIDTH, 0xFFFF);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*3 + 3, "MODE");
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*3 + 4, "MODE");
 	ili9340_drawFastHLine(BOX_SPLIT,     BOX_TOP + INFO_HEIGHT*4,     INFO_WIDTH, 0xFFFF);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*4 + 3, "IDLE");
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*4 + 4, "IDLE");
 
 	itoa(GET_REG(REG_ACC), buff, 10);
-	ili9340_fillRect(     BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*0 + 11, 6*4, 8, 0x0000);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*0 + 11, buff);
+	ili9340_fillRect(     BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*0 + 16, 6*4, 8, 0x0000);
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*0 + 16, buff);
 	itoa(GET_REG(REG_BAK), buff, 10);
-	ili9340_fillRect(     BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*1 + 11, 6*4, 8, 0x0000);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*1 + 11, buff);
+	ili9340_fillRect(     BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*1 + 16, 6*4, 8, 0x0000);
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*1 + 16, buff);
 	//TODO: LAST: Last side used when ANY
 	//TODO: MODE: Current Running mode (IDLE, RUN, WRITING, READING)
 	//IDLE PERCENTAGE
 	itoa(0, buff, 10);
-	ili9340_fillRect(     BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*4 + 11, 6*4, 8, 0x0000);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*4 + 11, buff);
+	ili9340_fillRect(     BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*4 + 16, 6*4, 8, 0x0000);
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*4 + 16, buff);
 
 	for(uint8_t i = 0; i < 15; i++) {
 		drawInstr(i);
@@ -174,17 +178,17 @@ void updateScreen() {
 	ili9340_setFrontColor(0xFFFF);
 	//Draw info
 	itoa(GET_REG(REG_ACC), buff, 10);
-	ili9340_fillRect(     BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*0 + 11, 6*4, 8, 0x0000);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*0 + 11, buff);
+	ili9340_fillRect(     BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*0 + 16, 8*4, 13, 0x0000);
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*0 + 16, buff);
 	itoa(GET_REG(REG_BAK), buff, 10);
-	ili9340_fillRect(     BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*1 + 11, 6*4, 8, 0x0000);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*1 + 11, buff);
+	ili9340_fillRect(     BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*1 + 16, 8*4, 13, 0x0000);
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*1 + 16, buff);
 	//TODO: LAST: Last side used when ANY
 	//TODO: MODE: Current Running mode (IDLE, RUN, WRITING, READING)
 	//IDLE PERCENTAGE
 	itoa(0, buff, 10);
-	ili9340_fillRect(     BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*4 + 11, 6*4, 8, 0x0000);
-	ili9340_drawString(   BOX_SPLIT + 6, BOX_TOP + INFO_HEIGHT*4 + 11, buff);
+	ili9340_fillRect(     BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*4 + 16, 8*4, 13, 0x0000);
+	ili9340_drawString(   BOX_SPLIT + 8, BOX_TOP + INFO_HEIGHT*4 + 16, buff);
 
 	//Draw instruction
 	for(uint8_t i = 0; i < 15; i++) {

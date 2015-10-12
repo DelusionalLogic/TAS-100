@@ -110,6 +110,8 @@
 extern "C" {
 #endif
 
+extern const unsigned char font[] PROGMEM;
+
 void ili9340_init(void);
 void ili9340_drawFastVLine(int16_t x, int16_t y, int16_t h,
  uint16_t color);
