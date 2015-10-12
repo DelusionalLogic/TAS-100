@@ -79,7 +79,6 @@ void Packet_noput() {
 void Packet_put(struct Packet* packet) {
 	packet->checksum = checksum(packet);
 
-	cli();
 
 	sendBuff[0] = packet->type;
 	sendBuff[1] = packet->length;
@@ -90,7 +89,5 @@ void Packet_put(struct Packet* packet) {
 	sendBuff[3 + packet->length] = packet->checksum;
 
 	TWI_Start_Transceiver_With_Data(sendBuff, 4 + packet->length);
-
-	sei();
 }
 

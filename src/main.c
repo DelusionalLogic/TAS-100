@@ -97,8 +97,7 @@ int main (void)
 	///////////////////
 	MCUCR &= 0b11101111;
 	DDRD  &= 0b00000011; //Set all execept the two serial pins to input
-	PORTD |= 0b00000100; //Enable the pullup on pin 3
-	DDRB  =  0b00100000; //Set pin 13 as output
+	PORTD |= 0b00000000; //Don't Enable the pullup on pin 3
  
 	//Serial
 	UBRR0H = UBRRH_VALUE;
