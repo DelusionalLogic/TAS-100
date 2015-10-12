@@ -49,12 +49,12 @@ extern volatile uint16_t instr[30];
 #define CHECK_INSTR() do { \
 	if(GET_OPC() == 0x00) {\
 		for(int i = registers[REG_PC]+1; i != registers[REG_PC]; i++) { \
+			if(i > 15)\
+				i = 0;\
 			if(GET_OPC_AT(i) != 0x00){ \
 				registers[REG_PC] = i; \
 				break;\
 			}\
-			if(i >= 15)\
-				i = 0;\
 		}\
 	}\
 }while(0)
